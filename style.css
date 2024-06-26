@@ -1,0 +1,104 @@
+@font-face {
+    font-family: 'Poppins';
+    src: url('fonts/Poppins-Regular.ttf') format('ttf');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('fonts/Poppins-SemiBold.ttf') format('ttf');
+    font-weight: 600;
+    font-style: normal;
+}
+
+
+.custom-tooltip {
+    font-family: 'Poppins', sans-serif;
+    position: absolute;
+    padding: 8px 12px;
+    background-color: #f9f9f9;
+    border: 1px solid #d3d3d3;
+    border-radius: 4px;
+    z-index: 1000;
+    max-width: 500px;
+    /* Adjust based on your preference */
+    word-wrap: break-word;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    color: #333;
+    display: none;
+    /* Initially hidden */
+}
+
+.custom-tooltip.show {
+    display: block;
+    /* Show the tooltip */
+}
+
+.custom-tooltip .close-button {
+    all: initial;
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0 5px;
+    font-size: 16px;
+
+}
+
+.custom-tooltip .close-button:hover {
+    color: #a2a2a2;
+}
+
+.custom-tooltip .container-search-button {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    /* margin-bottom: 10px; */
+
+}
+
+.custom-tooltip .search-button:hover {
+    background: #e0e0e0;
+}
+
+.custom-tooltip .search-button {
+    all: initial;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* Space between icon and text */
+    background-color: transparent;
+    color: inherit;
+    /* Use the text color of the parent element */
+    font-size: 16px;
+    margin-right: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 5px;
+}
+
+.search-button img {
+    display: block;
+    /* Prevents baseline alignment issues */
+}
+
+
+
+.tooltip-arrow {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #f9f9f9;
+    /* Position the arrow at the top of the tooltip */
+    top: -5px; /* half the height of the arrow to merge it seamlessly with the tooltip */
+    left: 25px; /* offset from the left */
+    transform: rotate(45deg); /* Rotate the square to form a downward-pointing arrow */
+    border-top: 1px solid #d3d3d3;
+    border-right: 1px solid #d3d3d3;
+}
