@@ -90,15 +90,72 @@
 
 
 
-.tooltip-arrow {
+
+.custom-tooltip::after {
+    content: "";
     position: absolute;
-    width: 15px;
-    height: 15px;
-    background-color: #f9f9f9;
-    /* Position the arrow at the top of the tooltip */
-    top: -5px; /* half the height of the arrow to merge it seamlessly with the tooltip */
-    left: 25px; /* offset from the left */
-    transform: rotate(45deg); /* Rotate the square to form a downward-pointing arrow */
-    border-top: 1px solid #d3d3d3;
-    border-right: 1px solid #d3d3d3;
+    bottom: 100%; /* Position at the bottom of the tooltip */
+    left: var(--arrow-left, 10%); /* Adjust as needed to align with the tooltip design */
+    margin-left: -5px; /* Center the arrow */
+    border-width: 5px; /* Size of the arrow */
+    border-style: solid;
+    border-color: transparent transparent #f9f9f9 transparent; /* Arrow color matching the tooltip background */
+    display: none;
+}
+
+.custom-tooltip::before {
+    content: "";
+    position: absolute;
+    bottom: 100%; /* Positioning relative to the tooltip */
+    left: var(--arrow-left, 10%); /* Align with the ::after pseudo-element */
+    margin-left: -6px; /* Adjust to cover the border of the ::after pseudo-element */
+    border-width: 6px; /* Slightly larger to cover the border */
+    border-style: solid;
+    border-color: transparent transparent #d3d3d3 transparent; /* Border color matching the tooltip border */
+    display: none;
+}
+
+.custom-tooltip.visible::after {
+    display: block; /* Show the arrow when tooltip is visible */
+}
+
+.custom-tooltip.visible::before {
+    display: block; /* Show the arrow when tooltip is visible */
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+
+}
+ 
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }

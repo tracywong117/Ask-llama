@@ -51,9 +51,18 @@ function createCloseButton(tooltip) {
 function showTooltip(tooltip, rect) {
     // Center the tooltip horizontally and position it above the selected area
     // tooltip.style.left = `${rect.left + window.pageXOffset + rect.width / 2 - tooltip.offsetWidth / 2}px`;
-    tooltip.style.left = `${rect.left + window.pageXOffset }px`;
+    tooltip.style.left = `${rect.left + window.pageXOffset}px`;
     tooltip.style.top = `${rect.bottom + window.pageYOffset - tooltip.offsetHeight + 10}px`; // Adjust to position correctly
     tooltip.style.display = 'block'; // Make sure the tooltip is shown
+
+    // const arrow = tooltip.querySelector('.custom-tooltip::after');
+    const tooltipWidth = tooltip.offsetWidth;
+    const arrowPosition = rect.width / 2;
+
+    // Add a style to the tooltip for the arrow positioning
+    tooltip.style.setProperty('--arrow-left', `${arrowPosition}px`);
+
+    tooltip.classList.add('visible'); // This class controls the visibility of the arrow
 }
 
 function createSearchButtons(tooltip, searchText) {
@@ -110,61 +119,272 @@ function openSearchTab(site, searchText) {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // console.log(message.text);
 
-    const { tooltip, titleContainer, textContainer } = createTooltip();
-
-    // Update tooltip text and show 'Loading...'
-    textContainer.textContent = 'Loading...'; 
-
-    // Position and then fetch data
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        console.log("rect: ", rect)
-
-        showTooltip(tooltip, rect); // Position and show tooltip
-        fetchLLaMA3Inference(message.text, tooltip, titleContainer, textContainer); // Pass tooltip to update on fetch complete
+    if (message.text === 'Saved') {
+        if (!document.getElementById('myModal')) {
+            // document.getElementById('myModal').remove();
+            createModal('API Key saved successfully!');
+        }
+    } else if (message.text === 'Enter') {
+        if (!document.getElementById('myModal')) {
+            // document.getElementById('myModal').remove();
+            createModal('Please enter an API key.');
+        }
+    } else {
+        const { tooltip, titleContainer, textContainer } = createTooltip();
+    
+        // Update tooltip text and show 'Loading...'
+        textContainer.textContent = 'Loading...';
+    
+        // Position and then fetch data
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            console.log("rect: ", rect)
+    
+            // showTooltip(tooltip, rect); // Position and show tooltip
+            fetchLLaMA3Inference(message.text, tooltip, titleContainer, textContainer, rect); // Pass tooltip to update on fetch complete
+    
+            // Close the tooltip when clicking outside the tooltip
+            document.addEventListener('click', function (event) {
+                // console.log("Clicked")
+                // Check if the click is outside the tooltip
+                if (!tooltip.contains(event.target)) {
+                    // console.log("Outside tooltip")
+                    tooltip.remove();
+                } else {
+                    // console.log("Inside tooltip")
+                }
+            }, { capture: true });
+        }
     }
+
+
 });
 
-function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer) {
-    const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-    const apiKey = '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';
+// Not streaming
+// function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, rect) {
+//     const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+//     const apiKey = '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';
 
-    fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-            model: 'llama3-70b-8192',
-            messages: [
-                {
-                    "role": "system",
-                    "content": "Explain the following term in short. Use markdown for formatting."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        })
-    })
-        .then(response => response.json())
-        .then(data => {
-            const result = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+//     fetch(apiUrl, {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Authorization': `Bearer ${apiKey}`
+//         },
+//         body: JSON.stringify({
+//             model: 'llama3-70b-8192',
+//             messages: [
+//                 {
+//                     "role": "system",
+//                     "content": "Explain the following term in short. Use markdown for formatting."
+//                 },
+//                 {
+//                     "role": "user",
+//                     "content": prompt
+//                 }
+//             ]
+//         })
+//     })
+//         .then(response => response.json())
+//         .then(data => {
+//             showTooltip(tooltip, rect); // Position and show tooltip
+//             const result = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+//             titleContainer.style.display = 'block';
+//             titleContainer.textContent = 'What is ' + "'" + prompt + "'?";
+//             const htmlContent = marked.parse(result);  // Convert Markdown to HTML
+//             textContainer.innerHTML = htmlContent;  // Set the HTML content
+//             // textContainer.textContent = result || 'No result found';
+//             tooltip.classList.add('show');
+//             createCloseButton(tooltip);
+//             createSearchButtons(tooltip, prompt);
+//         })
+//         .catch(error => {
+//             tooltip.textContent = `Error: ${error.message}`;
+//             tooltip.classList.add('show');
+//         });
+// }
+
+// Streaming
+function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, rect) {
+    const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+    let apiKey = '';
+    chrome.storage.local.get('apiKey', function(data) {
+        apiKey = data.apiKey;
+        if (!apiKey) {
+            // console.error('API Key is not set');
+            showTooltip(tooltip, rect);  // Position and show tooltip
             titleContainer.style.display = 'block';
             titleContainer.textContent = 'What is ' + "'" + prompt + "'?";
-            const htmlContent = marked.parse(result);  // Convert Markdown to HTML
-            textContainer.innerHTML = htmlContent;  // Set the HTML content
-            // textContainer.textContent = result || 'No result found';
             tooltip.classList.add('show');
             createCloseButton(tooltip);
             createSearchButtons(tooltip, prompt);
-        })
-        .catch(error => {
-            tooltip.textContent = `Error: ${error.message}`;
-            tooltip.classList.add('show');
-        });
+            textContainer.textContent = 'Please set your Groq API key in the extension options.';
+            return;
+        } else {
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'llama3-70b-8192',
+                    messages: [
+                        {
+                            "role": "system",
+                            "content": "Explain the following term in short. Use markdown for formatting."
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "stream": true,
+                })
+            })
+                .then(response => {
+                    showTooltip(tooltip, rect);  // Position and show tooltip
+                    titleContainer.style.display = 'block';
+                    titleContainer.textContent = 'What is ' + "'" + prompt + "'?";
+                    tooltip.classList.add('show');
+                    createCloseButton(tooltip);
+                    createSearchButtons(tooltip, prompt);
+        
+                    const reader = response.body.getReader();
+                    let totalResult = '';
+                    let notFinished = '';
+        
+                    // Extract json from data (streamed response)
+                    function extractJsonFromData(data) {
+                        const jsonList = [];
+                        const lines = data.split('\n'); // Split the string into lines
+        
+                        for (let line of lines) {
+                            line = line.trim(); // Trim whitespace
+                            if (line === 'data: [DONE]') continue; // Skip the line with [DONE]
+                            if (line.startsWith('data: ')) {
+                                const jsonString = line.substring(6);
+                                // console.log("Attempting to parse JSON:", jsonString); // Log the JSON string
+                                try {
+                                    const json = JSON.parse(jsonString);
+                                    jsonList.push(json);
+                                } catch (error) {
+                                    // console.error("Error parsing JSON:", error);
+                                    notFinished = "data: " + jsonString;
+                                    // console.log("Not finished:", jsonString);
+                                }
+                            }
+                        }
+        
+                        return jsonList;
+                    }
+        
+                    // Process the json data and update the tooltip
+                    function processText(jsonData) {
+                        try {
+                            const result = jsonData.choices &&
+                                jsonData.choices[0] &&
+                                jsonData.choices[0].delta &&
+                                jsonData.choices[0].delta.content;
+        
+                            totalResult += result;
+        
+                            if (result) {
+        
+                                const htmlContent = marked.parse(totalResult);  // Convert Markdown to HTML
+                                if (textContainer.textContent == 'Loading...') {
+                                    textContainer.textContent = '';
+                                }
+                                textContainer.innerHTML = htmlContent;  // Set the HTML content
+        
+                            }
+                        }
+                        catch (error) {
+                            // Handle parsing errors
+                            console.log('Waiting for more data or parsing error:', error);
+                        }
+                    }
+        
+                    function push() {
+                        reader.read().then(({ done, value }) => {
+                            if (done) {
+                                console.log("Stream completed");
+                                return;
+                            }
+                            let chunkText = new TextDecoder().decode(value);
+                            if (notFinished) {
+                                // console.log(chunkText);
+                                chunkText = notFinished + chunkText;
+                                notFinished = '';
+                            }
+                            extractJsonFromData(chunkText).forEach(processText);
+                            push();
+                        }).catch(error => {
+                            tooltip.textContent = `Error reading stream: ${error.message}`;
+                            tooltip.classList.add('show');
+                        });
+                    }
+        
+                    push();
+                })
+                .catch(error => {
+                    tooltip.textContent = `Error: ${error.message}`;
+                    tooltip.classList.add('show');
+                });
+        }
+    });
+
+}
+
+function createModal(message) {
+    // Create modal container
+    const modal = document.createElement('div');
+    modal.setAttribute('id', 'myModal');
+    modal.classList.add('modal');
+
+    // Create modal content container
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+
+    // Create close button
+    const closeButton = document.createElement('span');
+    closeButton.classList.add('close');
+    closeButton.innerHTML = '&times;';
+
+    // Create image element
+    const image = document.createElement('img');
+    image.src = chrome.runtime.getURL('icons/icon48.png');
+    image.alt = 'Icon';
+    image.style.display = 'block';
+    image.style.margin = 'auto';
+
+    // Create paragraph for text
+    const messageParagraph = document.createElement('p');
+    messageParagraph.id = 'modalText';
+    messageParagraph.textContent = message;
+
+    // Append elements
+    modalContent.appendChild(closeButton);
+    modalContent.appendChild(image);
+    modalContent.appendChild(messageParagraph);
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    // Event to close modal
+    closeButton.onclick = function() {
+        modal.style.display = 'none';
+        document.body.removeChild(modal);
+    };
+
+    // Click outside to close
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+            document.body.removeChild(modal);
+        }
+    };
+
+    modal.style.display = 'block';
 }
