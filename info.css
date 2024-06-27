@@ -1,0 +1,56 @@
+.custom-tooltip {
+    inherits: initial;
+}
+
+.custom-tooltip h1,
+.custom-tooltip h2,
+.custom-tooltip h3,
+.custom-tooltip h4,
+.custom-tooltip h5 {
+    font-weight: bold; /* Applies bold to all, override for h1 below */
+    margin: 0;
+    padding-top: 0.5em;
+    padding-bottom: 0.17em;
+    overflow: hidden;
+}
+
+.custom-tooltip h1,
+.custom-tooltip h2 {
+    margin-bottom: 0.6em;
+    border-bottom: 1px solid var(--border-color-base, #a2a9b1); /* Ensure variable is defined or fallback is used */
+}
+
+.custom-tooltip h1 {
+    font-size: 188%;
+    font-weight: normal; /* Overrides the bold set earlier specifically for h1 */
+}
+
+.custom-tooltip h3 {
+    font-size: 128%;
+}
+
+.custom-tooltip h4 {
+    font-size: 116%;
+}
+
+.custom-tooltip p {
+    font-size: 100%;
+    margin: 0.4em 0 0.5em 0;
+}
+
+.custom-tooltip strong {
+    font-weight: bold;
+}
+
+.custom-tooltip ul {
+    list-style-type: disc;
+    margin: 0.3em 0 0 1.6em;
+    padding: 0;
+}
+
+.custom-tooltip li {
+    margin-bottom: 0.1em;
+    display: list-item;
+    text-align: -webkit-match-parent;
+    unicode-bidi: isolate;
+}

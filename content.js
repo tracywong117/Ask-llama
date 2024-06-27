@@ -119,45 +119,35 @@ function openSearchTab(site, searchText) {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // console.log(message.text);
 
-    if (message.text === 'Saved') {
-        if (!document.getElementById('myModal')) {
-            // document.getElementById('myModal').remove();
-            createModal('API Key saved successfully!');
-        }
-    } else if (message.text === 'Enter') {
-        if (!document.getElementById('myModal')) {
-            // document.getElementById('myModal').remove();
-            createModal('Please enter an API key.');
-        }
-    } else {
-        const { tooltip, titleContainer, textContainer } = createTooltip();
-    
-        // Update tooltip text and show 'Loading...'
-        textContainer.textContent = 'Loading...';
-    
-        // Position and then fetch data
-        const selection = window.getSelection();
-        if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            console.log("rect: ", rect)
-    
-            // showTooltip(tooltip, rect); // Position and show tooltip
-            fetchLLaMA3Inference(message.text, tooltip, titleContainer, textContainer, rect); // Pass tooltip to update on fetch complete
-    
-            // Close the tooltip when clicking outside the tooltip
-            document.addEventListener('click', function (event) {
-                // console.log("Clicked")
-                // Check if the click is outside the tooltip
-                if (!tooltip.contains(event.target)) {
-                    // console.log("Outside tooltip")
-                    tooltip.remove();
-                } else {
-                    // console.log("Inside tooltip")
-                }
-            }, { capture: true });
-        }
+
+    const { tooltip, titleContainer, textContainer } = createTooltip();
+
+    // Update tooltip text and show 'Loading...'
+    textContainer.textContent = 'Loading...';
+
+    // Position and then fetch data
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        console.log("rect: ", rect)
+
+        // showTooltip(tooltip, rect); // Position and show tooltip
+        fetchLLaMA3Inference(message.text, tooltip, titleContainer, textContainer, rect); // Pass tooltip to update on fetch complete
+
+        // Close the tooltip when clicking outside the tooltip
+        document.addEventListener('click', function (event) {
+            // console.log("Clicked")
+            // Check if the click is outside the tooltip
+            if (!tooltip.contains(event.target)) {
+                // console.log("Outside tooltip")
+                tooltip.remove();
+            } else {
+                // console.log("Inside tooltip")
+            }
+        }, { capture: true });
     }
+
 
 
 });
@@ -210,7 +200,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, rect) {
     const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
     let apiKey = '';
-    chrome.storage.local.get('apiKey', function(data) {
+    chrome.storage.local.get('apiKey', function (data) {
         apiKey = data.apiKey;
         if (!apiKey) {
             // console.error('API Key is not set');
@@ -251,16 +241,16 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                     tooltip.classList.add('show');
                     createCloseButton(tooltip);
                     createSearchButtons(tooltip, prompt);
-        
+
                     const reader = response.body.getReader();
                     let totalResult = '';
                     let notFinished = '';
-        
+
                     // Extract json from data (streamed response)
                     function extractJsonFromData(data) {
                         const jsonList = [];
                         const lines = data.split('\n'); // Split the string into lines
-        
+
                         for (let line of lines) {
                             line = line.trim(); // Trim whitespace
                             if (line === 'data: [DONE]') continue; // Skip the line with [DONE]
@@ -277,10 +267,10 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                                 }
                             }
                         }
-        
+
                         return jsonList;
                     }
-        
+
                     // Process the json data and update the tooltip
                     function processText(jsonData) {
                         try {
@@ -288,17 +278,17 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                                 jsonData.choices[0] &&
                                 jsonData.choices[0].delta &&
                                 jsonData.choices[0].delta.content;
-        
+
                             totalResult += result;
-        
+
                             if (result) {
-        
+
                                 const htmlContent = marked.parse(totalResult);  // Convert Markdown to HTML
                                 if (textContainer.textContent == 'Loading...') {
                                     textContainer.textContent = '';
                                 }
                                 textContainer.innerHTML = htmlContent;  // Set the HTML content
-        
+
                             }
                         }
                         catch (error) {
@@ -306,7 +296,7 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                             console.log('Waiting for more data or parsing error:', error);
                         }
                     }
-        
+
                     function push() {
                         reader.read().then(({ done, value }) => {
                             if (done) {
@@ -326,7 +316,7 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                             tooltip.classList.add('show');
                         });
                     }
-        
+
                     push();
                 })
                 .catch(error => {
@@ -336,55 +326,4 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
         }
     });
 
-}
-
-function createModal(message) {
-    // Create modal container
-    const modal = document.createElement('div');
-    modal.setAttribute('id', 'myModal');
-    modal.classList.add('modal');
-
-    // Create modal content container
-    const modalContent = document.createElement('div');
-    modalContent.classList.add('modal-content');
-
-    // Create close button
-    const closeButton = document.createElement('span');
-    closeButton.classList.add('close');
-    closeButton.innerHTML = '&times;';
-
-    // Create image element
-    const image = document.createElement('img');
-    image.src = chrome.runtime.getURL('icons/icon48.png');
-    image.alt = 'Icon';
-    image.style.display = 'block';
-    image.style.margin = 'auto';
-
-    // Create paragraph for text
-    const messageParagraph = document.createElement('p');
-    messageParagraph.id = 'modalText';
-    messageParagraph.textContent = message;
-
-    // Append elements
-    modalContent.appendChild(closeButton);
-    modalContent.appendChild(image);
-    modalContent.appendChild(messageParagraph);
-    modal.appendChild(modalContent);
-    document.body.appendChild(modal);
-
-    // Event to close modal
-    closeButton.onclick = function() {
-        modal.style.display = 'none';
-        document.body.removeChild(modal);
-    };
-
-    // Click outside to close
-    window.onclick = function(event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-            document.body.removeChild(modal);
-        }
-    };
-
-    modal.style.display = 'block';
 }

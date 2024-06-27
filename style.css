@@ -17,7 +17,8 @@
     font-family: 'Poppins', sans-serif;
     position: absolute;
     padding: 8px 12px;
-    background-color: #f9f9f9;
+    /* background-color: #f9f9f9; */
+    background-color: aliceblue;
     border: 1px solid #d3d3d3;
     border-radius: 4px;
     z-index: 1000;
@@ -88,9 +89,6 @@
     /* Prevents baseline alignment issues */
 }
 
-
-
-
 .custom-tooltip::after {
     content: "";
     position: absolute;
@@ -99,7 +97,7 @@
     margin-left: -5px; /* Center the arrow */
     border-width: 5px; /* Size of the arrow */
     border-style: solid;
-    border-color: transparent transparent #f9f9f9 transparent; /* Arrow color matching the tooltip background */
+    border-color: transparent transparent aliceblue transparent; /* Arrow color matching the tooltip background */
     display: none;
 }
 
@@ -121,41 +119,4 @@
 
 .custom-tooltip.visible::before {
     display: block; /* Show the arrow when tooltip is visible */
-}
-
-/* The Modal (background) */
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-
-}
- 
-/* Modal Content */
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
-}
-
-/* The Close Button */
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
 }

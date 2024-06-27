@@ -1,2 +1,3 @@
 # Ask-LLaMa
-Chrome extension.
+
+![Screenshot](screenshot3.png)
