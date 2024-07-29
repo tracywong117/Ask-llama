@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "ALLaMa",
+    "name": "AnnotateLlama",
     "version": "1.0",
-    "description": "Show tooltip with API data on selected text",
+    "description": "Shortcut to ask Llama 3 about the highlighted words. Supported by Groq and powered by Marked.js.",
     "permissions": [
       "contextMenus",
       "activeTab",

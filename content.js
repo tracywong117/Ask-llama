@@ -66,54 +66,86 @@ function showTooltip(tooltip, rect) {
 }
 
 function createSearchButtons(tooltip, searchText) {
-    const sites = [
-        { name: 'Google', icon: 'icons/google-icon.webp' },
-        { name: 'Wikipedia', icon: 'icons/wikipedia-icon.png' },
-        { name: 'YouTube', icon: 'icons/youtube-icon.png' },
+    // const sites = [
+    //     { name: 'Google', icon: 'icons/google-icon.webp', url: 'https://www.google.com/search?q=' },
+    //     { name: 'Wikipedia', icon: 'icons/wikipedia-icon.png', url: 'https://en.wikipedia.org/wiki/Special:Search?search=' },
+    //     { name: 'YouTube', icon: 'icons/youtube-icon.png', url: 'https://www.youtube.com/results?search_query=' },
+    // ];
+    const defaultShortcuts = [
+        { name: 'Google', icon: 'icons/google-icon.webp', url: 'https://www.google.com/search?q=' },
+        { name: 'Wikipedia', icon: 'icons/wikipedia-icon.png', url: 'https://en.wikipedia.org/wiki/Special:Search?search=' },
+        { name: 'YouTube', icon: 'icons/youtube-icon.png', url: 'https://www.youtube.com/results?search_query=' },
     ];
-    const buttonDiv = document.createElement('div');
-    buttonDiv.className = 'container-search-button';
 
-    sites.forEach(site => {
-        const button = document.createElement('button');
-        button.className = 'search-button';
+    let sites = [];
 
-        // Create an image element for the icon
-        const icon = document.createElement('img');
-        icon.src = chrome.runtime.getURL(site.icon); // Get correct URL for Chrome Extension resource
-        icon.alt = `${site.name} icon`;
-        icon.style.width = '20px'; // Set the image size
-        icon.style.height = '20px';
+    chrome.storage.local.get(['shortcut'], function (result) {
+        sites = result.shortcut || defaultShortcuts;
+        console.log(sites);
+        const buttonDiv = document.createElement('div');
+        buttonDiv.className = 'container-search-button';
+    
+        sites.forEach(site => {
+            const button = document.createElement('button');
+            button.className = 'search-button';
+            
+            if (site.icon) {
+                // Create an image element for the icon
+                const icon = document.createElement('img');
+                icon.src = chrome.runtime.getURL(site.icon); // Get correct URL for Chrome Extension resource
+                icon.alt = `${site.name} icon`;
+                icon.style.width = '20px'; // Set the image size
+                icon.style.height = '20px';
+                
+                button.appendChild(icon); // Add the icon to the button
+        
+                button.onclick = function () {
+                    openSearchTab(site.name, searchText);
+                };
+                buttonDiv.appendChild(button);
+        
+            } else {
+                const icon = document.createElement('span');
+                icon.textContent = site.name.charAt(0);
+                icon.style.fontSize = '20px';
+                icon.style.color = '#333';
+                icon.style.textTransform = 'uppercase';
+                icon.style.border = '1px solid #ccc';
+                icon.style.borderRadius = '5px';
+                icon.style.padding = '4px';
+                icon.style.width = '16px'; // Set the image size
+                icon.style.height = '16px';
+                
+                // Center the text inside the border
+                icon.style.display = 'flex';
+                icon.style.alignItems = 'center';
+                icon.style.justifyContent = 'center';
 
-        button.appendChild(icon); // Add the icon to the button
-        // button.appendChild(document.createTextNode(site.name)); // Optional: Add text label
-
-        button.onclick = function () {
-            openSearchTab(site.name, searchText);
-        };
-        buttonDiv.appendChild(button);
+                button.appendChild(icon); // Add the icon to the button
+        
+                button.onclick = function () {
+                    openSearchTab(site.name, searchText);
+                };
+                buttonDiv.appendChild(button);
+            }
+        });
+    
+        tooltip.appendChild(buttonDiv);
     });
 
-    tooltip.appendChild(buttonDiv);
 }
 
 function openSearchTab(site, searchText) {
-    // const text = document.getElementById('tooltip-text').textContent;
     let url;
-    switch (site) {
-        case 'YouTube':
-            url = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchText)}`;
-            break;
-        case 'Google':
-            url = `https://www.google.com/search?q=${encodeURIComponent(searchText)}`;
-            break;
-        case 'Wikipedia':
-            url = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(searchText)}`;
-            break;
-    }
-    if (url) {
-        window.open(url, '_blank');
-    }
+    let shortcuts = [];
+    chrome.storage.local.get(['shortcut'], function (result) {
+        shortcuts = result.shortcut || defaultShortcuts;
+        url = shortcuts.find(shortcut => shortcut.name === site)?.url + searchText;
+        if (url) {
+            window.open(url, '_blank');
+        }
+    });
+
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

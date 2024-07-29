@@ -1,14 +1,19 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
-    <title>Set API Key</title>
+    <title>Annotate Llama Settings</title>
     <link rel="stylesheet" type="text/css" href="options.css">
     <script defer src="options.js"></script>
 </head>
-<body>
-    <h1>Enter Your API Key</h1>
-    <input type="password" id="apiKey" placeholder="API Key">
-    <button id="saveKey">Save Key</button>
+<body style="background-color: rgb(243, 250, 255);">
+    <div style="display: flex; flex-direction: column; width: 100%; align-items: center;">
+        <h1 style="font-size: 36px;">Annotate Llama</h1>
+        <div style="font-size: 18px; font: rgb(100, 110, 100); padding: 10px;">Enter Your API Key</div>
+        <div>
+            <input type="password" id="apiKey" placeholder="API Key">
+            <button id="saveKey">Save Key</button>
+        </div>
+    </div>
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -17,4 +22,72 @@
         </div>
     </div>
 </body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotate Llama Settings</title>
+    <link rel="stylesheet" type="text/css" href="options.css">
+    <script defer src="options.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Annotate Llama</h1>
+        <div class="description">Enter Your API Key</div>
+        <div class="api-container" style="padding-bottom: 20px;">
+            <input type="password" id="apiKey" placeholder="API Key">
+            <button id="saveKey">Save Key</button>
+        </div>
+
+        <div class="description">Choose Background Color</div>
+        <div class="color-picker" style="padding-bottom: 20px;">
+            <div class="color-option" data-color="#f3faff">
+                <div class="color-preview" style="background-color: #f3faff;"></div>
+                Light Blue
+            </div>
+            <div class="color-option" data-color="#fff0f5">
+                <div class="color-preview" style="background-color: #fff0f5;"></div>
+                Lavender Blush
+            </div>
+            <div class="color-option" data-color="#f0fff0">
+                <div class="color-preview" style="background-color: #f0fff0;"></div>
+                Honeydew
+            </div>
+            <div class="color-option" data-color="#f5f5dc">
+                <div class="color-preview" style="background-color: #f5f5dc;"></div>
+                Beige
+            </div>
+            <div class="color-option" data-color="#f0ffff">
+                <div class="color-preview" style="background-color: #f0ffff;"></div>
+                Azure
+            </div>
+        </div>
+
+        <div class="description">Manage Shortcuts</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Shortcut</th>
+                    <th>URL Template</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic content will be inserted here -->
+            </tbody>
+        </table>
+        <button id="resetShortcut">Reset</button>
+        <button id="saveShortcut">Save Shortcut</button>
+    </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img src="icons/icon128.png" alt="Icon" style="display: block; margin: auto;">
+            <p id="modalText" style="font-size: 24px; display: flex; justify-content: center;">API Key saved successfully!</p>
+        </div>
+    </div>
+</body>
+
 </html>
