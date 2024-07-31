@@ -37,10 +37,13 @@ Right click to ask Llama about the selected words. Supported by Groq and powered
 ![](Screenshot2.png)
 
 ## Configuration
+>[!IMPORTANT]
+> You need to enter the Groq API key (free) to use this Chrome Extension.
+>
+> Follow the following instruction:
+>
+> 1. Register for a free account at [Groq](https://groq.com/).
+> 2. Go to the [Groq Playground](https://console.groq.com/playground) and click on the "API Keys" in menu. And click "Create API Key" button.
 
-To configure the extension, click on the extension icon in the toolbar and select "Options". 
+To configure the extension, click on the extension icon in the toolbar. 
 ![](Screenshot4.png)
-Here you can:
-- Set your Groq API key.
-- Customize the search engines and their icons.
-- Change the tooltip background color.
