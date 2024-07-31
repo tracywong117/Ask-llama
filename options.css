@@ -1,6 +1,7 @@
 * {
     font-family: sans-serif;
 }
+
 /* The Modal (background) */
 .modal {
     display: none;
@@ -78,6 +79,9 @@ h1 {
     color: #666;
     margin-bottom: 20px;
     text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .api-container {
@@ -88,7 +92,7 @@ h1 {
     margin-bottom: 20px;
 }
 
-input[type="password"] {
+input {
     width: 70%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -147,7 +151,7 @@ table td {
 }
 
 table th {
-    font-size: 14px;
+    font-size: 16px;
     background-color: #eef9ff;
 }
 
@@ -157,6 +161,10 @@ table tr:nth-child(even) {
 
 table tr:hover {
     background-color: #ececec;
+}
+
+table input {
+    font-size: 14px;
 }
 
 .actions {
@@ -180,4 +188,58 @@ table tr:hover {
 .actions button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+.info-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.info-tooltiptext {
+    font-size: 14px;
+    visibility: hidden;
+    width: 220px;
+    background-color: white;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 125%;
+    transform: translateY(-50%);
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent white transparent transparent;
+}
+
+.info-tooltiptext::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    margin-top: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent #ccc transparent transparent;
+}
+
+.info-tooltip:hover .info-tooltiptext,
+.info-tooltip .info-tooltiptext:hover {
+    visibility: visible;
+}
+
+.info-tooltip-paragraph {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }

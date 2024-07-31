@@ -1,13 +1,18 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const saveButton = document.getElementById('saveKey');
-    const apiKeyInput = document.getElementById('apiKey');
-    const modal = document.getElementById('myModal');
-    const closeModal = document.getElementsByClassName("close")[0];
+import { defaultShortcuts, defaultPrompt1, defaultPrompt2 } from './config.js';
 
+document.addEventListener('DOMContentLoaded', function () {
+    // Load API Key
+    const apiKeyInput = document.getElementById('apiKey');
+    chrome.storage.local.get('askLlama_apiKey', function (result) {
+        apiKeyInput.value = result['askLlama_apiKey'] || '';
+    });
+    
+    // Save API Key
+    const saveButton = document.getElementById('saveKey');
     saveButton.addEventListener('click', function () {
         const apiKey = apiKeyInput.value;
         if (apiKey) {
-            chrome.storage.local.set({ 'apiKey': apiKey }, function () {
+            chrome.storage.local.set({ 'askLlama_apiKey': apiKey }, function () {
                 document.getElementById('modalText').innerText = "API Key saved successfully!";
                 modal.style.display = "block";
             });
@@ -16,30 +21,28 @@ document.addEventListener('DOMContentLoaded', function () {
             modal.style.display = "block";
         }
     });
-
+    
+    const modal = document.getElementById('myModal');
+    const closeModal = document.getElementsByClassName("close")[0];
+    // Close the modal when clicked on close button
     closeModal.onclick = function () {
         modal.style.display = "none";
     };
-
+    // Close the modal when clicked outside
     window.onclick = function (event) {
         if (event.target == modal) {
             modal.style.display = "none";
         }
     };
 
-    const defaultShortcuts = [
-        { name: 'Google', icon: 'icons/google-icon.webp', url: 'https://www.google.com/search?q=' },
-        { name: 'Wikipedia', icon: 'icons/wikipedia-icon.png', url: 'https://en.wikipedia.org/wiki/Special:Search?search=' },
-        { name: 'YouTube', icon: 'icons/youtube-icon.png', url: 'https://www.youtube.com/results?search_query=' },
-    ];
-
+    // Load Shortcuts
     let shortcuts = [];
-
-    chrome.storage.local.get(['shortcut'], function (result) {
-        shortcuts = result.shortcut || Array.from(defaultShortcuts);
+    chrome.storage.local.get(['askLlama_shortcut'], function (result) {
+        shortcuts = result.shortcut || [...defaultShortcuts];
         renderTable();
     });
 
+    // Render the shortcuts table
     const renderTable = () => {
         const tbody = document.querySelector('tbody');
         tbody.innerHTML = '';
@@ -111,29 +114,53 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-
+    // Save Shortcuts
     const saveShortcutButton = document.getElementById('saveShortcut');
-
     saveShortcutButton.addEventListener('click', function () {
-        chrome.storage.local.set({ 'shortcut': shortcuts });
+        chrome.storage.local.set({ 'askLlama_shortcut': shortcuts });
+        document.getElementById('modalText').innerText = "Shortcut saved successfully!";
+        modal.style.display = "block";
     });
 
+    // Reset Shortcuts
     const resetShortcutButton = document.getElementById('resetShortcut');
-
     resetShortcutButton.addEventListener('click', function () {
-        shortcuts = [
-            { name: 'Google', icon: 'icons/google-icon.webp', url: 'https://www.google.com/search?q=' },
-            { name: 'Wikipedia', icon: 'icons/wikipedia-icon.png', url: 'https://en.wikipedia.org/wiki/Special:Search?search=' },
-            { name: 'YouTube', icon: 'icons/youtube-icon.png', url: 'https://www.youtube.com/results?search_query=' },
-        ];
+        shortcuts = [...defaultShortcuts];
         renderTable();
-        chrome.storage.local.set({ 'shortcut': shortcuts });
+        chrome.storage.local.set({ 'askLlama_shortcut': shortcuts });
     });
 
+    // Load Background Color
+    chrome.storage.local.get('askLlama-bgColor', function (result) {
+        document.body.style.backgroundColor = result['askLlama-bgColor'] || '#f0f0f0';
+    });
+
+    // Change Background Color
     document.querySelectorAll('.color-option').forEach(option => {
         option.addEventListener('click', (event) => {
             const color = event.currentTarget.dataset.color;
+            chrome.storage.local.set({ 'askLlama-bgColor': color });
             document.body.style.backgroundColor = color;
         });
     });
+
+    // Load Prompts
+    chrome.storage.local.get(['askLlama_promptPrefix', 'askLlama_promptSuffix'], function (result) {
+        document.getElementById('prompt').value = result['askLlama_promptPrefix'] || defaultPrompt1;
+        document.getElementById('prompt2').value = result['askLlama_promptSuffix'] || defaultPrompt2;
+    });
+
+    // Save Prompts
+    document.getElementById('prompt').addEventListener('input', savePrompts);
+    document.getElementById('prompt2').addEventListener('input', savePrompts);
+    function savePrompts() {
+        const prompt1 = document.getElementById('prompt').value;
+        const prompt2 = document.getElementById('prompt2').value;
+
+        chrome.storage.local.set({
+            'askLlama_promptPrefix': prompt1,
+            'askLlama_promptSuffix': prompt2
+        });
+    }
+
 });

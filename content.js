@@ -14,6 +14,16 @@ function createTooltip() {
     tooltip.className = 'custom-tooltip';
     tooltip.style.display = 'none';  // Start with tooltip hidden
 
+    // Retrieve the background color from Chrome storage and apply it
+    chrome.storage.local.get('askLlama-bgColor', (result) => {
+        let color = 'aliceblue';
+        if (result['askLlama-bgColor']) {
+            color = result['askLlama-bgColor'];
+        }
+        tooltip.style.backgroundColor = color;
+        tooltip.style.setProperty('--tooltip-arrow-color', color);
+    });
+
     const titleContainer = document.createElement('h4');
     titleContainer.id = 'tooltip-title'
     titleContainer.style.display = 'none';  // Start with tooltip hidden
@@ -66,11 +76,6 @@ function showTooltip(tooltip, rect) {
 }
 
 function createSearchButtons(tooltip, searchText) {
-    // const sites = [
-    //     { name: 'Google', icon: 'icons/google-icon.webp', url: 'https://www.google.com/search?q=' },
-    //     { name: 'Wikipedia', icon: 'icons/wikipedia-icon.png', url: 'https://en.wikipedia.org/wiki/Special:Search?search=' },
-    //     { name: 'YouTube', icon: 'icons/youtube-icon.png', url: 'https://www.youtube.com/results?search_query=' },
-    // ];
     const defaultShortcuts = [
         { name: 'Google', icon: 'icons/google-icon.webp', url: 'https://www.google.com/search?q=' },
         { name: 'Wikipedia', icon: 'icons/wikipedia-icon.png', url: 'https://en.wikipedia.org/wiki/Special:Search?search=' },
@@ -79,16 +84,17 @@ function createSearchButtons(tooltip, searchText) {
 
     let sites = [];
 
-    chrome.storage.local.get(['shortcut'], function (result) {
-        sites = result.shortcut || defaultShortcuts;
+    chrome.storage.local.get(['askLlama_shortcut'], function (result) {
+        console.log(result);
+        sites = result.askLlama_shortcut || defaultShortcuts;
         console.log(sites);
         const buttonDiv = document.createElement('div');
         buttonDiv.className = 'container-search-button';
-    
+
         sites.forEach(site => {
             const button = document.createElement('button');
             button.className = 'search-button';
-            
+
             if (site.icon) {
                 // Create an image element for the icon
                 const icon = document.createElement('img');
@@ -96,40 +102,28 @@ function createSearchButtons(tooltip, searchText) {
                 icon.alt = `${site.name} icon`;
                 icon.style.width = '20px'; // Set the image size
                 icon.style.height = '20px';
-                
+
                 button.appendChild(icon); // Add the icon to the button
-        
+
                 button.onclick = function () {
                     openSearchTab(site.name, searchText);
                 };
                 buttonDiv.appendChild(button);
-        
+
             } else {
                 const icon = document.createElement('span');
                 icon.textContent = site.name.charAt(0);
-                icon.style.fontSize = '20px';
-                icon.style.color = '#333';
-                icon.style.textTransform = 'uppercase';
-                icon.style.border = '1px solid #ccc';
-                icon.style.borderRadius = '5px';
-                icon.style.padding = '4px';
-                icon.style.width = '16px'; // Set the image size
-                icon.style.height = '16px';
-                
-                // Center the text inside the border
-                icon.style.display = 'flex';
-                icon.style.alignItems = 'center';
-                icon.style.justifyContent = 'center';
+                icon.className = 'custom-site-icon';
 
                 button.appendChild(icon); // Add the icon to the button
-        
+
                 button.onclick = function () {
                     openSearchTab(site.name, searchText);
                 };
                 buttonDiv.appendChild(button);
             }
         });
-    
+
         tooltip.appendChild(buttonDiv);
     });
 
@@ -138,8 +132,8 @@ function createSearchButtons(tooltip, searchText) {
 function openSearchTab(site, searchText) {
     let url;
     let shortcuts = [];
-    chrome.storage.local.get(['shortcut'], function (result) {
-        shortcuts = result.shortcut || defaultShortcuts;
+    chrome.storage.local.get(['askLlama_shortcut'], function (result) {
+        shortcuts = result.askLlama_shortcut || defaultShortcuts;
         url = shortcuts.find(shortcut => shortcut.name === site)?.url + searchText;
         if (url) {
             window.open(url, '_blank');
@@ -150,8 +144,6 @@ function openSearchTab(site, searchText) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // console.log(message.text);
-
-
     const { tooltip, titleContainer, textContainer } = createTooltip();
 
     // Update tooltip text and show 'Loading...'
@@ -232,13 +224,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, rect) {
     const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
     let apiKey = '';
-    chrome.storage.local.get('apiKey', function (data) {
-        apiKey = data.apiKey;
+    chrome.storage.local.get(['askLlama_apiKey', 'askLlama_promptPrefix', 'askLlama_promptSuffix'], function (data) {
+        apiKey = data.askLlama_apiKey;
+        let promptPrefix = data.askLlama_promptPrefix || 'What is ';
+        if (promptPrefix.trim().length > 0) {
+            promptPrefix += ' ';
+        }
+        const promptSuffix = data.askLlama_promptSuffix || 'Explain in short.';
+
         if (!apiKey) {
             // console.error('API Key is not set');
             showTooltip(tooltip, rect);  // Position and show tooltip
             titleContainer.style.display = 'block';
-            titleContainer.textContent = 'What is ' + "'" + prompt + "'?";
+            titleContainer.textContent = promptPrefix + prompt + "?";
             tooltip.classList.add('show');
             createCloseButton(tooltip);
             createSearchButtons(tooltip, prompt);
@@ -255,13 +253,13 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                     model: 'llama3-70b-8192',
                     messages: [
                         {
-                            "role": "system",
-                            "content": "Explain the following term in short. Use markdown for formatting."
+                            "role": "user",
+                            "content": promptPrefix + prompt
                         },
                         {
-                            "role": "user",
-                            "content": prompt
-                        }
+                            "role": "system",
+                            "content": promptSuffix
+                        },
                     ],
                     "stream": true,
                 })
@@ -269,7 +267,7 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                 .then(response => {
                     showTooltip(tooltip, rect);  // Position and show tooltip
                     titleContainer.style.display = 'block';
-                    titleContainer.textContent = 'What is ' + "'" + prompt + "'?";
+                    titleContainer.textContent = promptPrefix + prompt + "?";
                     tooltip.classList.add('show');
                     createCloseButton(tooltip);
                     createSearchButtons(tooltip, prompt);
@@ -314,12 +312,18 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                             totalResult += result;
 
                             if (result) {
+                                try {
+                                    const htmlContent = marked.parse(totalResult);  // Convert Markdown to HTML
+                                    if (textContainer.textContent == 'Loading...') {
+                                        textContainer.textContent = '';
+                                    }
+                                    textContainer.innerHTML = htmlContent;  // Set the HTML content
 
-                                const htmlContent = marked.parse(totalResult);  // Convert Markdown to HTML
-                                if (textContainer.textContent == 'Loading...') {
-                                    textContainer.textContent = '';
                                 }
-                                textContainer.innerHTML = htmlContent;  // Set the HTML content
+                                catch (error) {
+                                    console.log("Error parsing markdown:", error);
+                                    textContainer.textContent = totalResult;
+                                }
 
                             }
                         }

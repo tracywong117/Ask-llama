@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: "showTooltip",
-        title: "What is '%s'?",
+        title: `Ask llama for "%s"`,
         contexts: ["selection"] // Show this menu item only when text is selected
     });
 });
@@ -19,8 +19,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     }
 });
 
-chrome.action.onClicked.addListener(function(tab) {
-    chrome.tabs.create({'url': chrome.runtime.getURL('options.html')});
+chrome.action.onClicked.addListener(function (tab) {
+    chrome.tabs.create({ 'url': chrome.runtime.getURL('options.html') });
 });
 
 chrome.commands.onCommand.addListener((command) => {

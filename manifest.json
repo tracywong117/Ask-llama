@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "AnnotateLlama",
+    "name": "Ask Llama",
     "version": "1.0",
-    "description": "Shortcut to ask Llama 3 about the highlighted words. Supported by Groq and powered by Marked.js.",
+    "description": "Right click to ask Llama about the selected words. Supported by Groq and powered by Marked.js.",
     "permissions": [
       "contextMenus",
       "activeTab",

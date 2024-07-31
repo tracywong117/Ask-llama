@@ -1,47 +1,82 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <title>Annotate Llama Settings</title>
-    <link rel="stylesheet" type="text/css" href="options.css">
-    <script defer src="options.js"></script>
-</head>
-<body style="background-color: rgb(243, 250, 255);">
-    <div style="display: flex; flex-direction: column; width: 100%; align-items: center;">
-        <h1 style="font-size: 36px;">Annotate Llama</h1>
-        <div style="font-size: 18px; font: rgb(100, 110, 100); padding: 10px;">Enter Your API Key</div>
-        <div>
-            <input type="password" id="apiKey" placeholder="API Key">
-            <button id="saveKey">Save Key</button>
-        </div>
-    </div>
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <img src="icons/icon128.png" alt="Icon" style="display: block; margin: auto;">
-            <p id="modalText" style="font-size: 24px; display: flex; justify-content: center;">API Key saved successfully!</p>
-        </div>
-    </div>
-</body>
-</html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annotate Llama Settings</title>
+    <title>Ask Llama Settings</title>
     <link rel="stylesheet" type="text/css" href="options.css">
-    <script defer src="options.js"></script>
+    <script type="module" defer src="options.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Annotate Llama</h1>
-        <div class="description">Enter Your API Key</div>
+        <h1>Ask Llama</h1>
+        <div class="description">
+            Enter Your Groq API Key (Free)
+            <div class="info-tooltip">
+                <img src="icons/information-circle-outline.svg" alt="Info" style="width: 20px; height: 20px;">
+                <span class="info-tooltiptext">
+                    To get a Groq API key,
+                    <div class="info-tooltip-paragraph">
+                        1. Register for a free account at <a href="https://groq.com/" target="_blank">Groq</a>.
+                    </div>
+                    <div class="info-tooltip-paragraph">
+                        2. Go to the <a href="https://console.groq.com/playground" target="_blank">Groq playground</a> and click on the "API Keys" in menu. 
+                        And click "Create API Key" button.
+                    </div>
+                </span>
+            </div>
+        </div>
+
         <div class="api-container" style="padding-bottom: 20px;">
             <input type="password" id="apiKey" placeholder="API Key">
             <button id="saveKey">Save Key</button>
         </div>
 
-        <div class="description">Choose Background Color</div>
+        <div class="description">
+            Prompt
+            <div class="info-tooltip">
+                <img src="icons/information-circle-outline.svg" alt="Info" style="width: 20px; height: 20px;">
+                <span class="info-tooltiptext">
+                    <div class="info-tooltip-paragraph">
+                        You can customize the prompt by adding a prefix and suffix. 
+                    </div>
+                    <div class="info-tooltip-paragraph">
+                        <u>
+                            Default
+                        </u>
+                    </div> 
+                    <div class="info-tooltip-paragraph">
+                        prefix: "What is"
+                    </div>
+                    <span class="info-tooltip-paragraph" style="background-color: aliceblue; border: 1px solid #ccc; ">
+                        {Selected word}
+                    </span>
+                    <div class="info-tooltip-paragraph">
+                        suffix: "Explain in short."
+                    </div>
+                </span>
+            </div>
+        </div>
+        <div style="padding-bottom: 20px;">
+            <div class="api-container">
+                <input type="text" id="prompt" placeholder="Your prompt prefix ...">
+                <span>+</span>
+                <input type="text" id="prompt2" placeholder="Your prompt suffix ...">
+            </div>
+            <!-- <button id="saveKey">Save Prompt</button> -->
+        </div>
+
+        <div class="description">
+            Choose Background Color
+            <div class="info-tooltip">
+                <img src="icons/information-circle-outline.svg" alt="Info" style="width: 20px; height: 20px;">
+                <span class="info-tooltiptext">
+                    <div class="info-tooltip-paragraph">
+                        You can choose a background color for the tooltip.
+                    </div>
+                </span>
+            </div>
+        </div>
         <div class="color-picker" style="padding-bottom: 20px;">
             <div class="color-option" data-color="#f3faff">
                 <div class="color-preview" style="background-color: #f3faff;"></div>
@@ -65,7 +100,32 @@
             </div>
         </div>
 
-        <div class="description">Manage Shortcuts</div>
+        <div class="description">
+            Manage Shortcuts
+            <div class="info-tooltip">
+                <img src="icons/information-circle-outline.svg" alt="Info" style="width: 20px; height: 20px;">
+                <span class="info-tooltiptext" style="width: 450px;">
+                    <div class="info-tooltip-paragraph">
+                        The shortcuts allow you to search words in different site (default: Google, Wikipedia, and YouTube).
+                    </div>
+                    <!-- <div class="info-tooltip-paragraph">
+                        <img src="Sreenshot-shortcut.png" alt="Screenshot" style="width: 100%;">
+                    </div> -->
+                    <div class="info-tooltip-paragraph">
+                        <u>Example</u>
+                    </div>
+                    <div class="info-tooltip-paragraph">
+                        If you want to add shortcut for searching words in <span style="border-bottom: 1px dotted palevioletred; font-weight: 700;">Cambridge Dictionary</span>,
+                    </div>
+                    <div>
+                        Set the URL template to be <a href="https://dictionary.cambridge.org/dictionary/english-chinese-traditional/" target="_blank">
+                            https://dictionary.cambridge.org/dictionary/english-chinese-traditional/
+                        </a>.
+                    </div>
+                    
+                </span>
+            </div>
+        </div>
         <table>
             <thead>
                 <tr>

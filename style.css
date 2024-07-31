@@ -17,8 +17,8 @@
     font-family: 'Poppins', sans-serif;
     position: absolute;
     padding: 8px 12px;
-    /* background-color: #f9f9f9; */
-    background-color: aliceblue;
+    background-color: aliceblue; /* Tooltip background color which can be changed by option page*/
+    /* --tooltip-arrow-color: aliceblue; */ /* set this in content.js */
     border: 1px solid #d3d3d3;
     border-radius: 4px;
     z-index: 1000;
@@ -97,7 +97,7 @@
     margin-left: -5px; /* Center the arrow */
     border-width: 5px; /* Size of the arrow */
     border-style: solid;
-    border-color: transparent transparent aliceblue transparent; /* Arrow color matching the tooltip background */
+    border-color: transparent transparent var(--tooltip-arrow-color) transparent; /* Arrow color matching the tooltip background */
     display: none;
 }
 
@@ -119,4 +119,18 @@
 
 .custom-tooltip.visible::before {
     display: block; /* Show the arrow when tooltip is visible */
+}
+
+.custom-site-icon {
+    font-size: 20px;
+    color: #333;
+    text-transform: uppercase;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 4px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
