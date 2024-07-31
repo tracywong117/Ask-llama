@@ -1,6 +1,6 @@
 # Ask Llama Chrome Extension
 
-![](Screenshot3.png)
+![](Screenshot.png)
 
 Right click to ask Llama about the selected words. Supported by Groq and powered by Marked.js.
 
