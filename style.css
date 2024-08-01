@@ -14,7 +14,10 @@
 
 
 .custom-tooltip {
+    all: initial;
     font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #222;
     position: absolute;
     padding: 8px 12px;
     background-color: aliceblue; /* Tooltip background color which can be changed by option page*/
@@ -27,7 +30,6 @@
     word-wrap: break-word;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     font-size: 14px;
-    color: #333;
     display: none;
     /* Initially hidden */
 }

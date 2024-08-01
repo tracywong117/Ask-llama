@@ -24,7 +24,7 @@ function createTooltip() {
         tooltip.style.setProperty('--tooltip-arrow-color', color);
     });
 
-    const titleContainer = document.createElement('h4');
+    const titleContainer = document.createElement('p');
     titleContainer.id = 'tooltip-title'
     titleContainer.style.display = 'none';  // Start with tooltip hidden
     tooltip.appendChild(titleContainer);

@@ -6,9 +6,11 @@ Right click to ask Llama about the selected words. Supported by Groq and powered
 
 ## Features
 
-- **Context Menu Integration**: Right-click selected text to search it using Ask Llama.
-- **Customizable Tooltips**: Tooltips show answers from a large language model (LLM) and allow further searches using predefined or custom shortcuts.
-- **Search Engines**: Integrated with popular search engines like Google, Wikipedia, and YouTube. You can also customize and add your own shortcuts.
+- **One-click AI search**: Right-click selected text to ask Llama.
+- **Enhance reading with tooltips**: Tooltips appear on the page and display answers from Llama.
+- **Customizable shortcuts**: Enable additional searches using predefined or custom shortcuts.
+
+We use the `llama3-70b-8192` model.
 
 ## Installation
 
@@ -16,13 +18,13 @@ Right click to ask Llama about the selected words. Supported by Groq and powered
     ```sh
     git clone https://github.com/yourusername/ask-llama-extension.git
     ```
-    Or Download ZIP.
+    Or Download ZIP (unzip it).
 
 2. Open Chrome and navigate to `chrome://extensions/`.
 
 3. Enable "Developer mode" by toggling the switch in the top-right corner.
 
-4. Click "Load unpacked" and select the directory where you cloned the repository.
+4. Click "Load unpacked" and select the directory (ask-llama-extension).
 
 ## Usage
 
