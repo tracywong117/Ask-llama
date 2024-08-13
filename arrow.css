@@ -1,0 +1,33 @@
+.custom-tooltip::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    /* Position at the bottom of the tooltip */
+    left: var(--arrow-left, 10%);
+    /* Adjust as needed to align with the tooltip design */
+    margin-left: -5px;
+    /* Center the arrow */
+    border-width: 5px;
+    /* Size of the arrow */
+    border-style: solid;
+    border-color: transparent transparent var(--tooltip-arrow-color) transparent;
+    /* Arrow color matching the tooltip background */
+    display: none;
+}
+
+.custom-tooltip::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    /* Positioning relative to the tooltip */
+    left: var(--arrow-left, 10%);
+    /* Align with the ::after pseudo-element */
+    margin-left: -6px;
+    /* Adjust to cover the border of the ::after pseudo-element */
+    border-width: 6px;
+    /* Slightly larger to cover the border */
+    border-style: solid;
+    border-color: transparent transparent #d3d3d3 transparent;
+    /* Border color matching the tooltip border */
+    display: none;
+}

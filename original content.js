@@ -1,59 +1,69 @@
-async function createTooltip() {
-    if (document.getElementById('askLlama-shadow-host')) {
-        document.getElementById('askLlama-shadow-host').remove();
+function createTooltip() {
+    if (document.getElementById('result')) {
+        document.getElementById('result').remove();
     }
 
-    const shadowHost = document.createElement('div');
-    shadowHost.id = 'askLlama-shadow-host';
-    document.body.appendChild(shadowHost);
+    const tooltip = document.createElement('div');
+    tooltip.id = 'result';
+    tooltip.className = 'custom-tooltip';
+    tooltip.style.display = 'none';  // Start with tooltip hidden
 
-    const shadow = shadowHost.attachShadow({ mode: 'open' });
+    // Retrieve the background color from Chrome storage and apply it
+    chrome.storage.local.get('askLlama-bgColor', (result) => {
+        let color = 'aliceblue';
+        if (result['askLlama-bgColor']) {
+            color = result['askLlama-bgColor'];
+        }
+        tooltip.style.backgroundColor = color;
+        tooltip.style.setProperty('--tooltip-arrow-color', color);
+    });
 
-    return fetch(chrome.runtime.getURL('tooltip.html'))
-        .then(response => response.text())
-        .then(html => {
-            shadow.innerHTML = html;
+    const titleContainer = document.createElement('p');
+    titleContainer.id = 'tooltip-title'
+    titleContainer.style.display = 'none';  // Start with tooltip hidden
+    tooltip.appendChild(titleContainer);
 
-            const tooltip = shadow.getElementById('result');
-            const titleContainer = shadow.getElementById('tooltip-title');
-            const textContainer = shadow.getElementById('tooltip-text');
+    // Create a container for the text to avoid overwriting the button
+    const textContainer = document.createElement('div');
+    textContainer.id = 'tooltip-text';
+    tooltip.appendChild(textContainer);
 
-            chrome.storage.local.get('askLlama-bgColor', (result) => {
-                let color = result['askLlama-bgColor'] || 'aliceblue';
-                tooltip.style.backgroundColor = color;
-                tooltip.style.setProperty('--tooltip-arrow-color', color);
-            });
+    const arrow = document.createElement('div');
+    arrow.className = 'tooltip-arrow';
+    tooltip.appendChild(arrow);
 
-            shadow.querySelector('.close-button').onclick = function () {
-                shadowHost.remove();
-            };
+    document.body.appendChild(tooltip);
+    // shadow.appendChild(tooltip);
 
-            return {
-                shadow: shadow,
-                tooltip: tooltip,
-                titleContainer: titleContainer,
-                textContainer: textContainer
-            };
-        });
-}
-
-
-function handleCloseButton(tooltip) {
-    const closeButton = tooltip.querySelector('.close-button');
-    closeButton.onclick = function () {
-        tooltip.remove(); // Remove the tooltip from the DOM
+    return {
+        tooltip: tooltip,
+        titleContainer: titleContainer,
+        textContainer: textContainer
     };
 }
 
-function showTooltip(tooltip, rect_left, rect_bottom, rect_width) {
+
+function createCloseButton(tooltip) {
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '×';
+    closeButton.className = 'close-button';
+    // closeButton.style.cssText = 'position: absolute; top: 0; right: 0; border: none; background: none; cursor: pointer; outline: none; padding: 0 5px; font-size: 16px;';
+    closeButton.onclick = function () {
+        tooltip.remove(); // Remove the tooltip from the DOM
+    };
+    tooltip.appendChild(closeButton);
+}
+
+function showTooltip(tooltip, rect) {
     // Center the tooltip horizontally and position it above the selected area
-    tooltip.style.left = `${rect_left + window.pageXOffset}px`;
-    tooltip.style.top = `${rect_bottom + window.pageYOffset - tooltip.offsetHeight + 10}px`; // Adjust to position correctly
+    // tooltip.style.left = `${rect.left + window.pageXOffset + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+    tooltip.style.left = `${rect.left + window.pageXOffset}px`;
+    tooltip.style.top = `${rect.bottom + window.pageYOffset - tooltip.offsetHeight + 10}px`; // Adjust to position correctly
     tooltip.style.display = 'block'; // Make sure the tooltip is shown
 
     // const arrow = tooltip.querySelector('.custom-tooltip::after');
     const tooltipWidth = tooltip.offsetWidth;
-    const arrowPosition = rect_width / 2;
+    const arrowPosition = rect.width / 2;
 
     // Add a style to the tooltip for the arrow positioning
     tooltip.style.setProperty('--arrow-left', `${arrowPosition}px`);
@@ -71,9 +81,11 @@ function createSearchButtons(tooltip, searchText) {
     let sites = [];
 
     chrome.storage.local.get(['askLlama_shortcut'], function (result) {
+        console.log(result);
         sites = result.askLlama_shortcut || defaultShortcuts;
-
-        const buttonDiv = tooltip.querySelector('.container-search-button');
+        console.log(sites);
+        const buttonDiv = document.createElement('div');
+        buttonDiv.className = 'container-search-button';
 
         sites.forEach(site => {
             const button = document.createElement('button');
@@ -108,7 +120,7 @@ function createSearchButtons(tooltip, searchText) {
             }
         });
 
-        // tooltip.appendChild(buttonDiv);
+        tooltip.appendChild(buttonDiv);
     });
 
 }
@@ -127,48 +139,35 @@ function openSearchTab(site, searchText) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    let ref_rect_left = NaN;
-    let ref_rect_bottom = NaN;
-    if (document.getElementById('askLlama-shadow-host')) {
-        const ref_shadowHost = document.getElementById('askLlama-shadow-host');
-        const ref_tooltip = ref_shadowHost.shadowRoot.getElementById('result');
-        ref_rect_left = parseFloat(ref_tooltip.style.left) - window.pageXOffset;
-        ref_rect_bottom = parseFloat(ref_tooltip.style.top) - window.pageYOffset - 10;
+    // console.log(message.text);
+    const { tooltip, titleContainer, textContainer } = createTooltip();
+
+    // Update tooltip text and show 'Loading...'
+    textContainer.textContent = 'Loading...';
+
+    // Position and then fetch data
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        console.log("rect: ", rect)
+
+        // showTooltip(tooltip, rect); // Position and show tooltip
+        fetchLLaMA3Inference(message.text, tooltip, titleContainer, textContainer, rect); // Pass tooltip to update on fetch complete
+
+        // Close the tooltip when clicking outside the tooltip
+        document.addEventListener('click', function (event) {
+            // console.log("Clicked")
+            // Check if the click is outside the tooltip
+            if (!tooltip.contains(event.target)) {
+                // console.log("Outside tooltip")
+                tooltip.remove();
+            } else {
+                // console.log("Inside tooltip")
+            }
+        }, { capture: true });
     }
 
-    createTooltip().then(({ shadow, tooltip, titleContainer, textContainer }) => {
-
-        textContainer.textContent = 'Loading...';
-
-        // Position and then fetch data
-        const selection = window.getSelection();
-        if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-
-            let rect_left = rect.left;
-            let rect_bottom = rect.bottom;
-            let rect_width = rect.width;
-
-            if (rect_left === 0 && rect_bottom === 0) {
-                console.log('No selection');
-                if (ref_rect_left != NaN && ref_rect_bottom != NaN) {
-                    rect_left = ref_rect_left;
-                    rect_bottom = ref_rect_bottom;
-                }
-            }
-
-            // showTooltip(tooltip, rect); // Position and show tooltip
-            fetchLLaMA3Inference(message.text, tooltip, titleContainer, textContainer, rect_left, rect_bottom, rect_width); // Pass tooltip to update on fetch complete
-
-            // Close the tooltip when clicking outside the tooltip
-            document.addEventListener('click', function (event) {
-                if (!shadow.host.contains(event.target)) {
-                    shadow.host.remove();
-                }
-            }, { capture: true });
-        }
-    });
 
 
 });
@@ -208,7 +207,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 //             textContainer.innerHTML = htmlContent;  // Set the HTML content
 //             // textContainer.textContent = result || 'No result found';
 //             tooltip.classList.add('show');
-//             handleCloseButton(tooltip);
+//             createCloseButton(tooltip);
 //             createSearchButtons(tooltip, prompt);
 //         })
 //         .catch(error => {
@@ -218,7 +217,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // }
 
 // Streaming
-function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, rect_left, rect_bottom, rect_width) {
+function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, rect) {
     const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
     let apiKey = '';
     chrome.storage.local.get(['askLlama_apiKey', 'askLlama_promptPrefix', 'askLlama_promptSuffix'], function (data) {
@@ -230,11 +229,12 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
         const promptSuffix = data.askLlama_promptSuffix || 'Explain in short.';
 
         if (!apiKey) {
-            showTooltip(tooltip, rect_left, rect_bottom, rect_width);  // Position and show tooltip
+            // console.error('API Key is not set');
+            showTooltip(tooltip, rect);  // Position and show tooltip
             titleContainer.style.display = 'block';
             titleContainer.textContent = promptPrefix + prompt + "?";
             tooltip.classList.add('show');
-            handleCloseButton(tooltip);
+            createCloseButton(tooltip);
             createSearchButtons(tooltip, prompt);
             textContainer.textContent = 'Please set your Groq API key in the extension options.';
             return;
@@ -261,11 +261,11 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                 })
             })
                 .then(response => {
-                    showTooltip(tooltip, rect_left, rect_bottom, rect_width);  // Position and show tooltip
+                    showTooltip(tooltip, rect);  // Position and show tooltip
                     titleContainer.style.display = 'block';
                     titleContainer.textContent = promptPrefix + prompt + "?";
                     tooltip.classList.add('show');
-                    handleCloseButton(tooltip);
+                    createCloseButton(tooltip);
                     createSearchButtons(tooltip, prompt);
 
                     const reader = response.body.getReader();
@@ -337,7 +337,7 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                             }
                             let chunkText = new TextDecoder().decode(value);
                             if (notFinished) {
-                                // console.log(chunkText);
+                                console.log(chunkText);
                                 chunkText = notFinished + chunkText;
                                 notFinished = '';
                             }
@@ -352,7 +352,7 @@ function fetchLLaMA3Inference(prompt, tooltip, titleContainer, textContainer, re
                     push();
                 })
                 .catch(error => {
-                    textContainer.textContent = `Error: ${error.message}`;
+                    tooltip.textContent = `Error: ${error.message}`;
                     tooltip.classList.add('show');
                 });
         }

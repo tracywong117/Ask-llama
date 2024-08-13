@@ -1,20 +1,6 @@
-@font-face {
-    font-family: 'Poppins';
-    src: url('fonts/Poppins-Regular.ttf') format('ttf');
-    font-weight: 400;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Poppins';
-    src: url('fonts/Poppins-SemiBold.ttf') format('ttf');
-    font-weight: 600;
-    font-style: normal;
-}
-
-.custom-tooltip * {
-    all: unset;
-    display: block;
+<style>
+:host {
+    all: initial; 
 }
 
 .custom-tooltip {
@@ -29,7 +15,7 @@
     /* set this in content.js */
     border: 1px solid #d3d3d3;
     border-radius: 4px;
-    z-index: 1000;
+    z-index: 100000;
     max-width: 500px;
     /* Adjust based on your preference */
     word-wrap: break-word;
@@ -45,7 +31,6 @@
 }
 
 .custom-tooltip .close-button {
-    all: initial;
     position: absolute;
     top: 0;
     right: 0;
@@ -75,7 +60,6 @@
 }
 
 .custom-tooltip .search-button {
-    all: initial;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -94,40 +78,6 @@
 .search-button img {
     display: block;
     /* Prevents baseline alignment issues */
-}
-
-.custom-tooltip::after {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    /* Position at the bottom of the tooltip */
-    left: var(--arrow-left, 10%);
-    /* Adjust as needed to align with the tooltip design */
-    margin-left: -5px;
-    /* Center the arrow */
-    border-width: 5px;
-    /* Size of the arrow */
-    border-style: solid;
-    border-color: transparent transparent var(--tooltip-arrow-color) transparent;
-    /* Arrow color matching the tooltip background */
-    display: none;
-}
-
-.custom-tooltip::before {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    /* Positioning relative to the tooltip */
-    left: var(--arrow-left, 10%);
-    /* Align with the ::after pseudo-element */
-    margin-left: -6px;
-    /* Adjust to cover the border of the ::after pseudo-element */
-    border-width: 6px;
-    /* Slightly larger to cover the border */
-    border-style: solid;
-    border-color: transparent transparent #d3d3d3 transparent;
-    /* Border color matching the tooltip border */
-    display: none;
 }
 
 .custom-tooltip.visible::after {
@@ -156,7 +106,7 @@
 
 #tooltip-title {
     /* font-family: Poppins, sans-serif; */
-    font-family: "system-ui", "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    /* font-family: "system-ui", "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; */
     font-size: 16px;
     font-weight: 600;
 }
@@ -170,7 +120,7 @@
 .custom-tooltip h3,
 .custom-tooltip h4,
 .custom-tooltip h5 {
-    font-family: Georgia, Palatino, serif;
+    /* font-family: Georgia, Palatino, serif; */
     margin-top: 15px;
     margin-bottom: 10px;
     font-weight: 600;
@@ -301,3 +251,12 @@
     margin-bottom: 10px;
     /* Add some space between list items */
 }
+</style>
+
+<div id="result" class="custom-tooltip" style="display: none;">
+    <p id="tooltip-title" style="display: none;"></p>
+    <div id="tooltip-text"></div>
+    <button class="close-button">x</button>
+    <div class="container-search-button"></div>
+
+</div>
